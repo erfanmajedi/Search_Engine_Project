@@ -1,5 +1,4 @@
 import json
-from re import L
 from hazm import *
 from parsivar import Normalizer
 from parsivar import Tokenizer
@@ -49,8 +48,8 @@ def new_moshtarak(inter, tokenlist):
                 for j in documentID :
                     general_docid_list.append(j)
         inter = moshtarak(inter, general_docid_list)
-    for doc in inter:
-        print(doc)          
+    # for doc in inter:
+    #     print(doc)          
 
 # inja ma docid kalameye aval v dovom ro dar miarim 
 def generate_doc_list(token) :
@@ -71,10 +70,21 @@ def generate_doc_list(token) :
     moshtarak_id = moshtarak(list1, list2)
     new_moshtarak(moshtarak_id,token)
 
-
-
-
-
+def ranking(tokenlist):
+    list_khali = dict()
+    for i in range(0,len(tokenlist)):
+        for word in dictionary :
+            if tokenlist[i] == word.id : 
+                documentID = word.docTerms.keys()
+                for j in documentID :
+                    if j not in list_khali :
+                        list_khali[j] = len(tokenlist)
+                    else :
+                        list_khali[j] -= 1
+    result = dict(sorted(list_khali.items(), key=lambda item: item[1]))
+    for key in result.keys() :
+        print("docID:",key , "rank:" , result[key])
+        
 my_list = []
 with open('readme.json') as file :
     for data in file :
@@ -108,7 +118,8 @@ for list_item in my_list :
                     dictionary.append(term)
 input = input()
 mytoken = my_tokenizer.tokenize_words(input)
-generate_doc_list(mytoken)
+# generate_doc_list(mytoken)
+ranking(mytoken)
 
 
     
