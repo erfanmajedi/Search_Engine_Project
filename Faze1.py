@@ -1,6 +1,4 @@
 import json
-from pydoc import doc
-from re import L
 from hazm import *
 from matplotlib.pyplot import prism
 from parsivar import Normalizer
