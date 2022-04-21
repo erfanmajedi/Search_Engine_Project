@@ -1,5 +1,8 @@
 import json
+from pydoc import doc
+from re import L
 from hazm import *
+from matplotlib.pyplot import prism
 from parsivar import Normalizer
 from parsivar import Tokenizer
 from parsivar import FindStems
@@ -67,8 +70,8 @@ def generate_doc_list(token) :
             second = second_word.docTerms.keys()
             for key2 in second :
                 list2.append(key2)
-    moshtarak_id = moshtarak(list1, list2)
-    new_moshtarak(moshtarak_id,token)
+    # moshtarak_id = moshtarak(list1, list2)
+    # new_moshtarak(moshtarak_id,token)
 
 def ranking(tokenlist):
     list_khali = dict()
@@ -82,21 +85,66 @@ def ranking(tokenlist):
                     else :
                         list_khali[j] -= 1
     result = dict(sorted(list_khali.items(), key=lambda item: item[1]))
-    for key in result.keys() :
-        print("docID:",key , "rank:" , result[key])
-        
+    # for key in result.keys() :
+    #     print("docID:",key , "rank:" , result[key])
+
+# # baraye do kalamei ke ! bade kalameye aval bashad
+def middle_handle_mark(before_mark_tok, after_mark_tok, tokn_list):
+    not_doc_list = []
+    is_doc_list = []
+    erfan = []
+    
+    for word in dictionary :
+        if after_mark_tok == word.id :
+            not_id = word.docTerms.keys()
+            for i in not_id :
+                not_doc_list.append(i)
+                
+            for j in range(10):
+                j_ = str(j)
+                if j_ not in not_doc_list :
+                    erfan.append(j)
+        if before_mark_tok == word.id :
+            is_id = word.docTerms.keys()
+            for k in is_id :
+                is_doc_list.append(k)
+        x = moshtarak(not_doc_list,is_doc_list)
+        for i in x :
+            print(i)
+        new_moshtarak(x, tokn_list)
+    
+
+
+
+# inja mikhahim makane alamat ra peyda konim 
+def search_mark(tkn) :
+    for index in range(1,len(tkn)) :
+        index_ = int(index)
+        if tkn[index_] == "!" :
+            middle_handle_mark(tkn[index_ - 1] ,tkn[index_ + 1], tkn)
+        else :
+            ranking(tkn)
+    # for index in range(len(tkn)):
+    #     if tkn[0] == "!" :
+    #         first_handle_mark(tkn[0], tkn[index + 1])
+
 my_list = []
-with open('readme.json') as file :
-    for data in file :
-        datas = json.loads(data)
-        my_list.append(datas)
+def open_file() :
+    with open('readme.json') as file :
+        for data in file :
+            datas = json.loads(data)
+            my_list.append(datas)
+    return my_list
+
 my_normalizer = Normalizer(statistical_space_correction=True)
 my_tokenizer = Tokenizer()
 my_stemmer = FindStems()
 punctuations = string.punctuation
 punctuations += ''.join(['،','؟','«','»','؛'])
-for list_item in my_list : 
-    key = list_item.keys()
+
+def positional_index(mylist):
+    for list_item in my_list : 
+        key = list_item.keys()
     for i in key :
         position = 0
         # words_title = my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['title']))
@@ -116,23 +164,12 @@ for list_item in my_list :
                     term = Term(j)
                     term.insert(i, position)
                     dictionary.append(term)
+
+
+positional_index(open_file())
 input = input()
 mytoken = my_tokenizer.tokenize_words(input)
 # generate_doc_list(mytoken)
-ranking(mytoken)
+# ranking(mytoken)
+search_mark(mytoken)
 
-
-    
-
-
-
-
-            
-
-
-
-        
-
-
-
-              
