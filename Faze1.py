@@ -1,4 +1,5 @@
 import json
+from re import L
 from hazm import *
 from matplotlib.pyplot import prism
 from parsivar import Normalizer
@@ -39,37 +40,82 @@ def moshtarak(docidList1, docidList2):
             if docidList1[i] == docidList2[j] :
                 intersect.append(docidList1[i])
     return intersect
+
 # inja docid kalameye dovom ba kalamat 2 be ba'ad ra hesab kardim 
-def new_moshtarak(inter, tokenlist):
+def new_moshtarak(inter, tokenlist, exclam_ind):
     for i in range(2,len(tokenlist)):
         general_docid_list = []
-        for word in dictionary :
-            if tokenlist[i] == word.id : 
-                documentID = word.docTerms.keys()
-                for j in documentID :
-                    general_docid_list.append(j)
+        if exclam_ind != i:
+            for word in dictionary :
+                if tokenlist[i] == word.id : 
+                    documentID = word.docTerms.keys()
+                    for j in documentID :
+                        general_docid_list.append(j)
+        else:
+            have_term = []
+            for word in dictionary :
+                if tokenlist[i] == word.id : 
+                    documentID = word.docTerms.keys()
+                    for j in documentID :
+                        have_term.append(j) 
+                        for not_exclam in range(10) :
+                            if not_exclam not in have_term :
+                                general_docid_list.append(not_exclam)
         inter = moshtarak(inter, general_docid_list)
-    # for doc in inter:
-    #     print(doc)          
+    for doc in inter:
+        print(doc)          
 
 # inja ma docid kalameye aval v dovom ro dar miarim 
-def generate_doc_list(token) :
+def generate_doc_list(token, exclam_ind) :
     list1 = []
     list2 = []
+    complement_0 = []
+    complement_1 = []
     word0 = token[0]
+    if exclam_ind == 0:
+        for i in dictionary :
+            if word0 == i.id :
+                j = i.docTerms.keys()
+                for k in j :
+                    list1.append(k)
+                for com in range(10) :
+                    com_ = str(com)
+                    if com_ not in list1 :
+                        complement_0.append(com_)
+        list1 = complement_0                
     word1 = token[1]
-    for first_word in dictionary :
-        if word0 == first_word.id :
-            first = first_word.docTerms.keys()
-            for key1 in first :
-                list1.append(key1)
-    for second_word in dictionary : 
-        if word1 == second_word.id :
-            second = second_word.docTerms.keys()
-            for key2 in second :
-                list2.append(key2)
-    # moshtarak_id = moshtarak(list1, list2)
-    # new_moshtarak(moshtarak_id,token)
+    if exclam_ind == 1:
+        for i in dictionary :
+            if word1 == i.id :
+                j = i.docTerms.keys()
+                for k in j :
+                    list2.append(k)
+                for com in range(10) :
+                    com_ = str(com)
+                    if com_ not in list2 :
+                        complement_1.append(com_)
+        list2 = complement_1                
+    if exclam_ind != 0 or exclam_ind != 1 :
+        if exclam_ind != 0:
+            for first_word in dictionary :
+                if word0 == first_word.id :
+                    first = first_word.docTerms.keys()
+                    for key1 in first :
+                        list1.append(key1)
+        if exclam_ind != 1:                
+            for second_word in dictionary : 
+                if word1 == second_word.id :
+                    second = second_word.docTerms.keys()
+                    for key2 in second :
+                        list2.append(key2)
+    """print("list1")                
+    for elem_1 in list1:
+        print(elem_1)
+    print("list2")                
+    for elem_2 in list2:
+        print(elem_2) """                    
+    moshtarak_id = moshtarak(list1, list2)
+    new_moshtarak(moshtarak_id,token,exclam_ind)
 
 def ranking(tokenlist):
     list_khali = dict()
@@ -85,47 +131,39 @@ def ranking(tokenlist):
     result = dict(sorted(list_khali.items(), key=lambda item: item[1]))
     # for key in result.keys() :
     #     print("docID:",key , "rank:" , result[key])
+        
+def not_kalame(word) :
+    not_list = []
+    complement = []
+    for i in dictionary :
+            if word == i.id :
+                j = i.docTerms.keys()
+                for k in j :
+                    not_list.append(k)
+                for com in range(10) :
+                    com_ = str(com)
+                    if com_ not in not_list :
+                        complement.append(com_)
+    return complement
 
 # # baraye do kalamei ke ! bade kalameye aval bashad
-def middle_handle_mark(before_mark_tok, after_mark_tok, tokn_list):
+def handle_mark(tokn_list):
     not_doc_list = []
     is_doc_list = []
     erfan = []
+    exclam_index = -1
+    for token in range(len(tokn_list)) :
+        if tokn_list[token] == "!" :
+            tokn_list.remove("!")
+            exclam_index = token
+            break
+    if len(tokn_list) == 1:
+        complement = not_kalame(tokn_list[0])
+        for element in complement:
+            print(element) 
+    else:       
+        generate_doc_list(tokn_list, exclam_index)   
     
-    for word in dictionary :
-        if after_mark_tok == word.id :
-            not_id = word.docTerms.keys()
-            for i in not_id :
-                not_doc_list.append(i)
-                
-            for j in range(10):
-                j_ = str(j)
-                if j_ not in not_doc_list :
-                    erfan.append(j)
-        if before_mark_tok == word.id :
-            is_id = word.docTerms.keys()
-            for k in is_id :
-                is_doc_list.append(k)
-        x = moshtarak(not_doc_list,is_doc_list)
-        for i in x :
-            print(i)
-        new_moshtarak(x, tokn_list)
-    
-
-
-
-# inja mikhahim makane alamat ra peyda konim 
-def search_mark(tkn) :
-    for index in range(1,len(tkn)) :
-        index_ = int(index)
-        if tkn[index_] == "!" :
-            middle_handle_mark(tkn[index_ - 1] ,tkn[index_ + 1], tkn)
-        else :
-            ranking(tkn)
-    # for index in range(len(tkn)):
-    #     if tkn[0] == "!" :
-    #         first_handle_mark(tkn[0], tkn[index + 1])
-
 my_list = []
 def open_file() :
     with open('readme.json') as file :
@@ -141,7 +179,7 @@ punctuations = string.punctuation
 punctuations += ''.join(['،','؟','«','»','؛'])
 
 def positional_index(mylist):
-    for list_item in my_list : 
+    for list_item in mylist : 
         key = list_item.keys()
     for i in key :
         position = 0
@@ -169,5 +207,6 @@ input = input()
 mytoken = my_tokenizer.tokenize_words(input)
 # generate_doc_list(mytoken)
 # ranking(mytoken)
-search_mark(mytoken)
+# search_mark(mytoken)
+handle_mark(mytoken)
 
