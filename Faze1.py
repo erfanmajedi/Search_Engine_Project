@@ -1,5 +1,4 @@
 import json
-from re import L
 from hazm import *
 from matplotlib.pyplot import prism
 from parsivar import Normalizer
@@ -148,9 +147,6 @@ def not_kalame(word) :
 
 # # baraye do kalamei ke ! bade kalameye aval bashad
 def handle_mark(tokn_list):
-    not_doc_list = []
-    is_doc_list = []
-    erfan = []
     exclam_index = -1
     for token in range(len(tokn_list)) :
         if tokn_list[token] == "!" :
@@ -207,6 +203,5 @@ input = input()
 mytoken = my_tokenizer.tokenize_words(input)
 # generate_doc_list(mytoken)
 # ranking(mytoken)
-# search_mark(mytoken)
 handle_mark(mytoken)
 
