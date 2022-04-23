@@ -1,4 +1,6 @@
+from copyreg import remove_extension
 import json
+from operator import pos
 from hazm import *
 from matplotlib.pyplot import prism
 from parsivar import Normalizer
@@ -61,8 +63,8 @@ def new_moshtarak(inter, tokenlist, exclam_ind):
                             if not_exclam not in have_term :
                                 general_docid_list.append(not_exclam)
         inter = moshtarak(inter, general_docid_list)
-    for doc in inter:
-        print(doc)          
+    # for doc in inter:
+    #     print(doc)          
 
 # inja ma docid kalameye aval v dovom ro dar miarim 
 def generate_doc_list(token, exclam_ind) :
@@ -106,7 +108,7 @@ def generate_doc_list(token, exclam_ind) :
                 if word1 == second_word.id :
                     second = second_word.docTerms.keys()
                     for key2 in second :
-                        list2.append(key2)
+                       list2.append(key2)
     """print("list1")                
     for elem_1 in list1:
         print(elem_1)
@@ -145,7 +147,6 @@ def not_kalame(word) :
                         complement.append(com_)
     return complement
 
-# # baraye do kalamei ke ! bade kalameye aval bashad
 def handle_mark(tokn_list):
     exclam_index = -1
     for token in range(len(tokn_list)) :
@@ -159,7 +160,47 @@ def handle_mark(tokn_list):
             print(element) 
     else:       
         generate_doc_list(tokn_list, exclam_index)   
-    
+
+def quotation_handle(without_quotation_token_list, quo_mark) :
+    q_flag = 0
+    quo_list1 = []
+    quo_list2 = []
+    for word in dictionary :
+        for not_quotation_token in without_quotation_token_list :
+            if not_quotation_token == word.id : 
+                if quo_mark == 1 :
+                    quo_list1 = quo_list2
+                    quo_list1 = []
+                    for position in list(word.docTerms.values()) :
+                        if q_flag == 0 :
+                            quo_list1.append(position)
+                        else :
+                            for element in quo_list2:
+                                if position.id == element.id:
+                                    for item1 in list(position.docTerms.values()):
+                                        for item2 in list(element.docTerms.values()):
+                                            if (item1 - 1) == item2:
+                                                quo_list1.append(position)
+    # for i in quo_list1 :
+    #     print(i.docId)                                                   
+   
+                                          
+def delete_quotation(my_token_list):
+    # alamat quote darim 
+    quotation_mark = 0 
+    without_quotation_list = []
+    for word in my_token_list :
+        for character in range(len(word)) :
+            if word[character] == '"' :
+                w = list(word)
+                w.remove(word[character])
+                # alamate quote remove shod 
+                quotation_mark = 1
+        w_string = "".join(w)
+        without_quotation_list.append(w_string)
+    quotation_handle(without_quotation_list, quotation_mark)
+
+
 my_list = []
 def open_file() :
     with open('readme.json') as file :
@@ -183,6 +224,7 @@ def positional_index(mylist):
         words_content =  my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['content'].translate(str.maketrans('','',punctuations))))
         # words_url =  my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['url']))
         for j in words_content :
+            j = my_stemmer.convert_to_stem(j)
             stopwords = stopwords_list()
             if j not in stopwords :
                 flag = 0
@@ -201,7 +243,8 @@ def positional_index(mylist):
 positional_index(open_file())
 input = input()
 mytoken = my_tokenizer.tokenize_words(input)
+delete_quotation(mytoken)
 # generate_doc_list(mytoken)
 # ranking(mytoken)
-handle_mark(mytoken)
+# handle_mark(mytoken)
 
