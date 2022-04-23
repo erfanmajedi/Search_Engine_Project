@@ -1,12 +1,10 @@
-from copyreg import remove_extension
 import json
-from operator import pos
 from hazm import *
-from matplotlib.pyplot import prism
 from parsivar import Normalizer
 from parsivar import Tokenizer
 from parsivar import FindStems
 import string
+from collections import Counter
 class Doc : 
     def __init__(self , docId, token) :
         self.count = 0 
@@ -118,6 +116,7 @@ def generate_doc_list(token, exclam_ind) :
     moshtarak_id = moshtarak(list1, list2)
     new_moshtarak(moshtarak_id,token,exclam_ind)
 
+
 def ranking(tokenlist):
     list_khali = dict()
     for i in range(0,len(tokenlist)):
@@ -161,6 +160,7 @@ def handle_mark(tokn_list):
     else:       
         generate_doc_list(tokn_list, exclam_index)   
 
+
 def quotation_handle(without_quotation_token_list, quo_mark) :
     q_flag = 0
     quo_list1 = []
@@ -181,10 +181,21 @@ def quotation_handle(without_quotation_token_list, quo_mark) :
                                         for item2 in list(element.docTerms.values()):
                                             if (item1 - 1) == item2:
                                                 quo_list1.append(position)
+
     # for i in quo_list1 :
-    #     print(i.docId)                                                   
-   
-                                          
+    #     print(i.docId)
+
+    list1 = [key for key, value in Counter(quo_list1).most_common()]       
+    for item in list1:
+        with open("readme.json", "r") as file:
+            jsonObject = json.load(file)
+            print(jsonObject[item.docId]["url"])
+            print(jsonObject[item.docId]["title"])
+            file.close()                                          
+                            
+
+
+    
 def delete_quotation(my_token_list):
     # alamat quote darim 
     quotation_mark = 0 
@@ -199,7 +210,6 @@ def delete_quotation(my_token_list):
         w_string = "".join(w)
         without_quotation_list.append(w_string)
     quotation_handle(without_quotation_list, quotation_mark)
-
 
 my_list = []
 def open_file() :
@@ -239,11 +249,11 @@ def positional_index(mylist):
                     term.insert(i, position)
                     dictionary.append(term)
 
-
-positional_index(open_file())
+text = open_file()
+positional_index(text)
 input = input()
 mytoken = my_tokenizer.tokenize_words(input)
-delete_quotation(mytoken)
+# delete_quotation(mytoken)
 # generate_doc_list(mytoken)
 # ranking(mytoken)
 # handle_mark(mytoken)
