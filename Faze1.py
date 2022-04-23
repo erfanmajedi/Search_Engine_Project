@@ -61,8 +61,17 @@ def new_moshtarak(inter, tokenlist, exclam_ind):
                             if not_exclam not in have_term :
                                 general_docid_list.append(not_exclam)
         inter = moshtarak(inter, general_docid_list)
-    # for doc in inter:
-    #     print(doc)          
+
+    inter = [key for key, value in Counter(inter).most_common()]    
+    for item in inter:
+        with open("readme.json", "r") as file:
+            jsonObject = json.load(file)
+            print(item)
+            print(jsonObject[item]["url"])
+            print(jsonObject[item]["title"])
+            file.close()                                          
+                            
+                 
 
 # inja ma docid kalameye aval v dovom ro dar miarim 
 def generate_doc_list(token, exclam_ind) :
@@ -129,8 +138,8 @@ def ranking(tokenlist):
                     else :
                         list_khali[j] -= 1
     result = dict(sorted(list_khali.items(), key=lambda item: item[1]))
-    # for key in result.keys() :
-    #     print("docID:",key , "rank:" , result[key])
+    for key in result.keys() :
+        print("docID:",key , "rank:" , result[key])
         
 def not_kalame(word) :
     not_list = []
@@ -182,16 +191,16 @@ def quotation_handle(without_quotation_token_list, quo_mark) :
                                             if (item1 - 1) == item2:
                                                 quo_list1.append(position)
 
-    # for i in quo_list1 :
-    #     print(i.docId)
+    for i in quo_list1 :
+        print(i.docId)
 
     list1 = [key for key, value in Counter(quo_list1).most_common()]       
-    for item in list1:
-        with open("readme.json", "r") as file:
-            jsonObject = json.load(file)
-            print(jsonObject[item.docId]["url"])
-            print(jsonObject[item.docId]["title"])
-            file.close()                                          
+    # for item in list1:
+    #     with open("readme.json", "r") as file:
+    #         jsonObject = json.load(file)
+    #         print(jsonObject[item.docId]["url"])
+    #         print(jsonObject[item.docId]["title"])
+    #         file.close()                                          
                             
 
 
@@ -254,7 +263,10 @@ positional_index(text)
 input = input()
 mytoken = my_tokenizer.tokenize_words(input)
 # delete_quotation(mytoken)
-# generate_doc_list(mytoken)
+# generate_doc_list(mytoken, -1)
 # ranking(mytoken)
-# handle_mark(mytoken)
+handle_mark(mytoken)
+
+
+
 
