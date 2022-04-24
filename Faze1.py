@@ -1,5 +1,7 @@
 import json
+import matplotlib.pyplot as plt
 from hazm import *
+import numpy as np
 from parsivar import Normalizer
 from parsivar import Tokenizer
 from parsivar import FindStems
@@ -228,6 +230,42 @@ def open_file() :
             my_list.append(datas)
     return my_list
 
+def counter(word):
+  return word.count
+
+def zipf() :
+    # with open('readme.json') as file : 
+    #     for object in file :
+    #         objects = json.loads(object)
+    #         zipf_list.append(objects)
+    #         for elem in zipf_list :
+    #             content = my_tokenizer.tokenize_words(my_normalizer.normalize(zipf_list[elem]['content'].translate(str.maketrans('','',punctuations))))
+    mehvareX = []
+    mehvareY = []
+    storage = dictionary
+    storage.sort(key = counter, reverse = True)
+    # for word in storage :
+    #     print(word.count, word.id)
+    for wordCounter in range(1, len(dictionary) + 1) :
+        mehvareX.append(np.log(wordCounter))
+    for wordFreq in storage :
+        mehvareY.append(np.log(wordFreq.count))
+    plt.title("Zipf Law")
+    plt.plot(mehvareX, mehvareY)
+    plt.show()
+
+
+    
+
+
+        
+        
+
+
+    
+
+
+
 my_normalizer = Normalizer(statistical_space_correction=True)
 my_tokenizer = Tokenizer()
 my_stemmer = FindStems()
@@ -260,13 +298,10 @@ def positional_index(mylist):
 
 text = open_file()
 positional_index(text)
-input = input()
-mytoken = my_tokenizer.tokenize_words(input)
+zipf()
+# input = input()
+# mytoken = my_tokenizer.tokenize_words(input)
 # delete_quotation(mytoken)
 # generate_doc_list(mytoken, -1)
 # ranking(mytoken)
-handle_mark(mytoken)
-
-
-
-
+# handle_mark(mytoken)
