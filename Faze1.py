@@ -1,6 +1,6 @@
 import json
 import matplotlib.pyplot as plt
-from hazm import *
+from hazm import stopwords_list
 import numpy as np
 from parsivar import Normalizer
 from parsivar import Tokenizer
@@ -63,15 +63,17 @@ def new_moshtarak(inter, tokenlist, exclam_ind):
                             if not_exclam not in have_term :
                                 general_docid_list.append(not_exclam)
         inter = moshtarak(inter, general_docid_list)
+    # for i in inter :
+    #     print(i)
 
-    inter = [key for key, value in Counter(inter).most_common()]    
-    for item in inter:
-        with open("readme.json", "r") as file:
-            jsonObject = json.load(file)
-            print(item)
-            print(jsonObject[item]["url"])
-            print(jsonObject[item]["title"])
-            file.close()                                          
+    # inter = [key for key, value in Counter(inter).most_common()]    
+    # for item in inter:
+    #     with open("IR_data_news_12k.json", "r") as file:
+    #         jsonObject = json.load(file)
+    #         print(item)
+    #         print(jsonObject[item]["url"])
+    #         print(jsonObject[item]["title"])
+    #         file.close()                                          
                             
                  
 
@@ -140,8 +142,8 @@ def ranking(tokenlist):
                     else :
                         list_khali[j] -= 1
     result = dict(sorted(list_khali.items(), key=lambda item: item[1]))
-    for key in result.keys() :
-        print("docID:",key , "rank:" , result[key])
+    # for key in result.keys() :
+    #     print("docID:",key , "rank:" , result[key])
         
 def not_kalame(word) :
     not_list = []
@@ -193,17 +195,10 @@ def quotation_handle(without_quotation_token_list, quo_mark) :
                                             if (item1 - 1) == item2:
                                                 quo_list1.append(position)
 
-    for i in quo_list1 :
-        print(i.docId)
+    # for i in quo_list1 :
+    #     print(i.docId)
 
-    list1 = [key for key, value in Counter(quo_list1).most_common()]       
-    # for item in list1:
-    #     with open("readme.json", "r") as file:
-    #         jsonObject = json.load(file)
-    #         print(jsonObject[item.docId]["url"])
-    #         print(jsonObject[item.docId]["title"])
-    #         file.close()                                          
-                            
+   
 
 
     
@@ -224,7 +219,7 @@ def delete_quotation(my_token_list):
 
 my_list = []
 def open_file() :
-    with open('readme.json') as file :
+    with open('IR_data_news_12k.json') as file :
         for data in file :
             datas = json.loads(data)
             my_list.append(datas)
@@ -252,20 +247,14 @@ def zipf() :
         mehvareY.append(np.log(wordFreq.count))
     plt.title("Zipf Law")
     plt.plot(mehvareX, mehvareY)
+    # plt.show()
+
+def heap(all_tokens, all_words) : 
+    # print(all_tokens)
+    # print(all_words)
+    plt.plot(np.log(all_tokens), np.log(all_words))
     plt.show()
-
-
-    
-
-
-        
-        
-
-
-    
-
-
-
+ 
 my_normalizer = Normalizer(statistical_space_correction=True)
 my_tokenizer = Tokenizer()
 my_stemmer = FindStems()
@@ -273,16 +262,24 @@ punctuations = string.punctuation
 punctuations += ''.join(['،','؟','«','»','؛'])
 
 def positional_index(mylist):
+    length_words_content = []
+    length_all_the_words = []
+    cumulative_sum_words = 0
     for list_item in mylist : 
         key = list_item.keys()
     for i in key :
+        print(i)
         position = 0
         # words_title = my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['title']))
         words_content =  my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['content'].translate(str.maketrans('','',punctuations))))
+        if i == '500' or i == '1000' or i == '1500' or i == '2000' :
+            cumulative_sum_words += len(words_content)
+            length_words_content.append(cumulative_sum_words)
+        # all_the_words = dictionary
         # words_url =  my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['url']))
         for j in words_content :
             j = my_stemmer.convert_to_stem(j)
-            stopwords = stopwords_list()
+            stopwords = set(stopwords_list())
             if j not in stopwords :
                 flag = 0
                 position += 1
@@ -295,10 +292,15 @@ def positional_index(mylist):
                     term = Term(j)
                     term.insert(i, position)
                     dictionary.append(term)
+        if i == '500' or i == '1000' or i == '1500' or i == '2000' :
+            length_all_the_words.append(len(dictionary))
+    heap(length_words_content, length_all_the_words)
 
+    
 text = open_file()
 positional_index(text)
-zipf()
+# zipf()
+# heap()
 # input = input()
 # mytoken = my_tokenizer.tokenize_words(input)
 # delete_quotation(mytoken)
