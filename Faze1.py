@@ -1,3 +1,4 @@
+from ast import In
 import json
 import matplotlib.pyplot as plt
 from hazm import stopwords_list
@@ -145,33 +146,33 @@ def ranking(tokenlist):
     # for key in result.keys() :
     #     print("docID:",key , "rank:" , result[key])
         
-def not_kalame(word) :
-    not_list = []
-    complement = []
-    for i in dictionary :
-            if word == i.id :
-                j = i.docTerms.keys()
-                for k in j :
-                    not_list.append(k)
-                for com in range(10) :
-                    com_ = str(com)
-                    if com_ not in not_list :
-                        complement.append(com_)
-    return complement
+# def not_kalame(word) :
+#     not_list = []
+#     complement = []
+#     for i in dictionary :
+#             if word == i.id :
+#                 j = i.docTerms.keys()
+#                 for k in j :
+#                     not_list.append(k)
+#                 for com in range(10) :
+#                     com_ = str(com)
+#                     if com_ not in not_list :
+#                         complement.append(com_)
+#     return complement
 
-def handle_mark(tokn_list):
-    exclam_index = -1
-    for token in range(len(tokn_list)) :
-        if tokn_list[token] == "!" :
-            tokn_list.remove("!")
-            exclam_index = token
-            break
-    if len(tokn_list) == 1:
-        complement = not_kalame(tokn_list[0])
-        for element in complement:
-            print(element) 
-    else:       
-        generate_doc_list(tokn_list, exclam_index)   
+# def handle_mark(tokn_list):
+#     exclam_index = -1
+#     for token in range(len(tokn_list)) :
+#         if tokn_list[token] == "!" :
+#             tokn_list.remove("!")
+#             exclam_index = token
+#             break
+#     if len(tokn_list) == 1:
+#         complement = not_kalame(tokn_list[0])
+#         for element in complement:
+#             print(element) 
+#     else:       
+#         generate_doc_list(tokn_list, exclam_index)   
 
 
 def quotation_handle(without_quotation_token_list, quo_mark) :
@@ -219,7 +220,7 @@ def delete_quotation(my_token_list):
 
 my_list = []
 def open_file() :
-    with open('IR_data_news_12k.json') as file :
+    with open('readme.json') as file :
         for data in file :
             datas = json.loads(data)
             my_list.append(datas)
@@ -253,7 +254,7 @@ def heap(all_tokens, all_words) :
     # print(all_tokens)
     # print(all_words)
     plt.plot(np.log(all_tokens), np.log(all_words))
-    plt.show()
+    # plt.show()
  
 my_normalizer = Normalizer(statistical_space_correction=True)
 my_tokenizer = Tokenizer()
@@ -268,7 +269,7 @@ def positional_index(mylist):
     for list_item in mylist : 
         key = list_item.keys()
     for i in key :
-        print(i)
+        # print(i)
         position = 0
         # words_title = my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['title']))
         words_content =  my_tokenizer.tokenize_words(my_normalizer.normalize(list_item[i]['content'].translate(str.maketrans('','',punctuations))))
@@ -296,6 +297,68 @@ def positional_index(mylist):
             length_all_the_words.append(len(dictionary))
     heap(length_words_content, length_all_the_words)
 
+
+def tf_idf_query() : 
+    query = input()
+    N = 10 
+    flag = 0
+    tf_of_each_doc = []
+    for word in dictionary : 
+        if query == word.id : 
+            # print(word.id)
+            idf = np.log10(N/len(list(word.docTerms.keys())))
+            for key in word.docTerms.keys() : 
+                tf = len(word.docTerms[key].positions)
+                tf_of_each_doc.append(tf)
+    # print(tf_of_each_doc)
+    for tf in tf_of_each_doc :
+        if tf == 0 : 
+            flag = 1
+            break
+        if flag == 0 : 
+            term_frequecy = 1 + np.log10(tf)
+        weight = term_frequecy * idf 
+        # print(weight)
+            # print(term_frequecy)
+    # print(len(list(word.docTerms.keys())))
+    # print(idf)
+
+def tf_idf_document() :
+    N = 10
+    document_vector = [ [] for i in range(N)]
+    for word in dictionary :
+        doc_iter = [0] * N
+        doc_num = len(list(word.docTerms.keys()))
+        idf = np.log10(N / doc_num)
+        print(word.id, idf)
+        for key in word.docTerms.keys() :
+            doc_iter[int(key)] = 1
+            #print(word.id, key)
+            frequency = len(word.docTerms[key].positions)
+            tf = 1 + np.log10(frequency)
+            # print("doc_id", key, "tf:" ,tf)
+            weight = tf * idf 
+            pair = (word.id , weight)
+            document_vector[int(key)].append(pair)
+        for i in range(N):
+            if doc_iter[i] == 0:
+                document_vector[i].append((word.id, 0.0))
+    print(document_vector[0])
+        
+
+    
+
+
+
+    
+
+        
+    
+            
+    
+
+    
+        
     
 text = open_file()
 positional_index(text)
@@ -303,6 +366,8 @@ positional_index(text)
 # heap()
 # input = input()
 # mytoken = my_tokenizer.tokenize_words(input)
+# tf_idf_query()
+tf_idf_document()
 # delete_quotation(mytoken)
 # generate_doc_list(mytoken, -1)
 # ranking(mytoken)
