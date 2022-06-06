@@ -1,6 +1,8 @@
 
+from ast import Index
 import json
-import math 
+import math
+from unittest import result 
 import matplotlib.pyplot as plt
 from hazm import stopwords_list
 import numpy as np
@@ -302,25 +304,31 @@ def positional_index(mylist):
 
 def tf_idf_query() : 
     query = input()
+    # query_list = query.split(' ')
+    # Set = set(query_list)
+    # query = list(Set)
+    # query.sort()
+    # print(query)
     N = 10 
     flag = 0
     tf_of_each_doc = []
-    # weight_query = []
+    # weight_query = [] 
     for word in dictionary : 
         if query == word.id : 
             # print(word.id)
-            idf = np.log10(N/len(list(word.docTerms.keys())))
-            for key in word.docTerms.keys() : 
-                tf = len(word.docTerms[key].positions)
-                tf_of_each_doc.append(tf)
+                idf = np.log10(N/len(list(word.docTerms.keys())))
+                # print('term:', word.id , idf)
+                for key in word.docTerms.keys() : 
+                    tf = len(word.docTerms[key].positions)
+                    tf_of_each_doc.append(tf)
     # print(tf_of_each_doc)
-    for tf in tf_of_each_doc :
-        if tf == 0 : 
-            flag = 1
-            break
-        if flag == 0 : 
-            term_frequecy = 1 + np.log10(tf)
-        weight = term_frequecy * idf 
+        for tf in tf_of_each_doc :
+            if tf == 0 : 
+                flag = 1
+                break
+            if flag == 0 : 
+                term_frequecy = 1 + np.log10(tf)
+            weight = term_frequecy * idf 
         # weight_query.append(weight)
     # print(idf)
         # print(weight_query)
@@ -370,19 +378,36 @@ def length_document(doc_vector) :
     return length
 
 def cosine_similarity(query ,length, doc_vec) : 
-        N = 10
-        score = [0] * N
+    k = 5
+    N = 10
+    score = [0] * N
+    pair_docid_score_list = []
     # for q in query :
     #     w_t_q = 1
-        for d in range(len(doc_vec)) : 
-            # print(d)
-            document_j = doc_vec[d]
-            # print(document_j)
-            for term in document_j :
-                if term[0] == query : 
-                    score[d] += term[1]
-            score[d] = score[d] / length[d]
-            print(score)
+    for d in range(len(doc_vec)) :
+        # print(d)
+        document_j = doc_vec[d]
+        # print(document_j)
+        for term in document_j :
+            if term[0] == query : 
+                score[d] += term[1]
+        score[d] = score[d] / length[d]
+        pair = (d, score[d])
+        pair_docid_score_list.append(pair)
+    # print(pair_docid_score_list)
+    pair_docid_score_list.sort(key = lambda x:x[1], reverse = True)
+    # print(pair_docid_score_list)
+    # print(score)
+    for i in range(k) :
+        with open("readme.json", "r") as file:
+            jsonObject = json.load(file)
+            print(pair_docid_score_list[i][0])
+            print(jsonObject[str(pair_docid_score_list[i][0])]["title"])
+            print(jsonObject[str(pair_docid_score_list[i][0])]["content"])                        
+            file.close()    
+                            
+    
+
 
 text = open_file()
 positional_index(text)
